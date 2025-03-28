@@ -20,3 +20,6 @@
 !greetd/**
 !kitty
 !kitty/**
+!zsh
+!zsh/.*
+zsh/.zhistory
