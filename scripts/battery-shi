@@ -24,9 +24,9 @@ set_shikane() {
 BATTERY_NAME="$(upower -e | grep BAT)"
 
 ONBATTERY=0
-PREVONBATTERY=0
+PREVONBATTERY=-1
 MONITORS=1
-PREVMONITORS=1
+PREVMONITORS=-1
 
 while true; do
 	upower -i "$BATTERY_NAME" | grep "state:" | grep "discharging" > /dev/null
@@ -42,6 +42,8 @@ while true; do
 		fi
 	fi
 	if [ $MONITORS -ne $PREVMONITORS ]; then
+		echo "Monitors updated"
+		hyprctl notify 1 1000 "rgb(0088AA)" "Monitors updated"
 		~/.config/shaders/glpaper.sh
 	fi
 	if [ $ONBATTERY -ne $PREVONBATTERY ] || [ $MONITORS -ne $PREVMONITORS ]; then
