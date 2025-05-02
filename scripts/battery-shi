@@ -1,0 +1,53 @@
+#!/bin/sh
+# battery-shi - Handle battery power modes
+
+shikane &
+
+is_extmonitor_connected() {
+	if [ $MONITORS -eq 1 ]; then
+		echo ""
+	else
+		echo "_extmonitor"
+	fi
+}
+
+set_shikane() {
+	if [ $ONBATTERY -eq 0 ]; then
+		PROFILE="battery$(is_extmonitor_connected)"
+		shikanectl switch $PROFILE
+	else
+		PROFILE="ac$(is_extmonitor_connected)"
+		shikanectl switch $PROFILE
+	fi
+}
+
+BATTERY_NAME="$(upower -e | grep BAT)"
+
+ONBATTERY=0
+PREVONBATTERY=0
+MONITORS=1
+PREVMONITORS=1
+
+while true; do
+	upower -i "$BATTERY_NAME" | grep "state:" | grep "discharging" > /dev/null
+	ONBATTERY=$?
+	MONITORS=$(hyprctl monitors | grep "Monitor" | wc -l)
+	if [ $ONBATTERY -ne $PREVONBATTERY ]; then
+		if [ $ONBATTERY -eq 0 ]; then
+			echo "Battery power detected"
+			hyprctl notify 1 1000 "rgb(AA8800)" "Battery power detected"
+		else
+			echo "AC power detected"
+			hyprctl notify 1 1000 "rgb(00AA00)" "AC power detected"
+		fi
+	fi
+	if [ $MONITORS -ne $PREVMONITORS ]; then
+		~/.config/shaders/glpaper.sh
+	fi
+	if [ $ONBATTERY -ne $PREVONBATTERY ] || [ $MONITORS -ne $PREVMONITORS ]; then
+		set_shikane
+	fi
+	PREVONBATTERY=$ONBATTERY
+	PREVMONITORS=$MONITORS
+	sleep 1
+done

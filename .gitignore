@@ -23,3 +23,7 @@
 !zsh
 !zsh/.*
 zsh/.zhistory
+!shaders
+!shaders/**
+!scripts
+!scripts/**
